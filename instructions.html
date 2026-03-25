@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to play — Undercover</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f13; color: #e8e6df; min-height: 100vh; padding: 2rem 1.5rem; }
+  .container { width: 100%; max-width: 480px; margin: 0 auto; }
+  .back { display: inline-flex; align-items: center; gap: 6px; color: #9e9c94; font-size: 14px; text-decoration: none; margin-bottom: 2rem; }
+  .back:hover { color: #e8e6df; }
+  h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
+  .subtitle { color: #9e9c94; font-size: 0.95rem; margin-bottom: 2rem; }
+  .card { background: #1c1c22; border: 0.5px solid #2e2e38; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; }
+  .card p, .card li { font-size: 14px; color: #9e9c94; line-height: 1.75; }
+  .card ul { padding-left: 1.2rem; }
+  .card li { margin-bottom: 0.25rem; }
+  .role-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem; }
+  .role-row:last-child { margin-bottom: 0; }
+  .role-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .badge-civilian { background: #1a3a2a; color: #4ade80; }
+  .badge-undercover { background: #2a1a3a; color: #c084fc; }
+  .badge-mrwhite { background: #2a2a1a; color: #facc15; }
+  .role-text strong { display: block; font-size: 14px; color: #e8e6df; margin-bottom: 2px; }
+  .role-text p { font-size: 13px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 1rem; }
+  .step:last-child { margin-bottom: 0; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #26262f; border: 0.5px solid #2e2e38; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #6c63ff; flex-shrink: 0; }
+  .step-text strong { display: block; font-size: 14px; color: #e8e6df; margin-bottom: 2px; }
+  .step-text p { font-size: 13px; color: #9e9c94; line-height: 1.6; }
+  .tip-box { background: #1a1a2e; border: 0.5px solid #2e2e50; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; font-size: 13px; color: #9e9c94; line-height: 1.7; }
+  .tip-box strong { color: #6c63ff; }
+  .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; background: #6c63ff; color: #fff; border: none; margin-top: 1.5rem; transition: opacity 0.15s; }
+  .btn:hover { opacity: 0.9; }
+  .divider { border: none; border-top: 0.5px solid #2e2e38; margin: 0.5rem 0 1rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back">← Back</a>
+  <h1>How to play</h1>
+  <p class="subtitle">Undercover · 5–8 players · 15–30 min</p>
+
+  <div class="card">
+    <h2>🎭 The roles</h2>
+    <hr class="divider">
+    <div class="role-row">
+      <span class="role-badge badge-civilian">Civilian</span>
+      <div class="role-text">
+        <strong>The majority</strong>
+        <p>You receive the real secret word. Describe it without giving it away — but convincingly enough that others trust you.</p>
+      </div>
+    </div>
+    <div class="role-row">
+      <span class="role-badge badge-undercover">Undercover</span>
+      <div class="role-text">
+        <strong>The spy</strong>
+        <p>You receive a similar but different word. Your goal is to blend in with the civilians without revealing you have a different word.</p>
+      </div>
+    </div>
+    <div class="role-row">
+      <span class="role-badge badge-mrwhite">Mr. White</span>
+      <div class="role-text">
+        <strong>The blank slate</strong>
+        <p>You receive no word at all. Listen carefully to others' clues to figure out the civilian word — and try not to get caught.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📋 How a round works</h2>
+    <hr class="divider">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <strong>Everyone gets their role</strong>
+        <p>Pass the phone around. Each player privately sees their role and word (or no word if they're Mr. White).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <strong>Give a one-word clue</strong>
+        <p>Going around the table, each player says exactly one word that relates to their secret word. No gestures, no extra hints.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <strong>Discuss and vote</strong>
+        <p>After everyone has spoken, players debate who seems most suspicious. Then everyone votes — the player with the most votes is eliminated.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <strong>Mr. White's last chance</strong>
+        <p>If Mr. White is eliminated, they get one shot to guess the civilian word. A correct guess means Mr. White wins instantly.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-text">
+        <strong>Repeat until someone wins</strong>
+        <p>Keep playing rounds until a win condition is met.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏆 Winning</h2>
+    <hr class="divider">
+    <ul>
+      <li><strong style="color:#4ade80;">Civilians win</strong> when all Undercover agents and Mr. White have been eliminated.</li>
+      <li><strong style="color:#c084fc;">Spies win</strong> if they survive until only 3 players remain, or if all civilians are eliminated.</li>
+      <li><strong style="color:#facc15;">Mr. White wins</strong> by correctly guessing the civilian word upon elimination.</li>
+    </ul>
+  </div>
+
+  <div class="tip-box">
+    <strong>Pro tip:</strong> As a civilian, be descriptive enough to prove you know the word — but vague enough not to hand it to Mr. White. As Undercover, mirror the civilians' energy. As Mr. White, give non-committal clues and piece together the word from what others say.
+  </div>
+
+  <a href="game.html" class="btn">🎮 Play now</a>
+</div>
+</body>
+</html>
