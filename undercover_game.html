@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Undercover</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f13; color: #e8e6df; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .screen { display: none; width: 100%; max-width: 480px; }
+  .screen.active { display: block; }
+
+  h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; }
+  p { color: #9e9c94; line-height: 1.6; }
+
+  .card { background: #1c1c22; border: 0.5px solid #2e2e38; border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
+
+  input[type=text], input[type=number] {
+    width: 100%; padding: 10px 14px; background: #13131a; border: 0.5px solid #2e2e38;
+    border-radius: 10px; color: #e8e6df; font-size: 15px; outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus { border-color: #6c63ff; }
+
+  .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; text-align: center; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: #6c63ff; color: #fff; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: #1c1c22; border: 0.5px solid #2e2e38; color: #e8e6df; }
+  .btn-secondary:hover { background: #26262f; }
+  .btn-danger { background: #3d1a1a; border: 0.5px solid #7a2222; color: #f87171; }
+
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .badge-civilian { background: #1a3a2a; color: #4ade80; }
+  .badge-undercover { background: #2a1a3a; color: #c084fc; }
+  .badge-mrwhite { background: #2a2a1a; color: #facc15; }
+
+  .player-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .player-row input { flex: 1; }
+  .remove-btn { background: none; border: none; color: #555; font-size: 18px; cursor: pointer; padding: 0 4px; }
+  .remove-btn:hover { color: #f87171; }
+
+  .role-reveal { text-align: center; padding: 2rem 1.5rem; }
+  .role-word { font-size: 2.2rem; font-weight: 700; margin: 1rem 0 0.5rem; letter-spacing: -1px; }
+  .role-label { font-size: 0.9rem; color: #9e9c94; margin-bottom: 1.5rem; }
+
+  .vote-list { display: grid; gap: 8px; }
+  .vote-btn { padding: 12px 16px; background: #1c1c22; border: 0.5px solid #2e2e38; border-radius: 10px; color: #e8e6df; font-size: 14px; cursor: pointer; text-align: left; transition: background 0.15s; }
+  .vote-btn:hover { background: #26262f; border-color: #6c63ff; }
+
+  .player-list-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid #2e2e38; font-size: 14px; }
+  .player-list-item:last-child { border-bottom: none; }
+
+  .eliminated { text-decoration: line-through; color: #555; }
+
+  .tag-alive { font-size: 11px; color: #4ade80; }
+  .tag-out { font-size: 11px; color: #555; }
+
+  .big-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+  .subtitle { font-size: 0.85rem; color: #555; margin-top: 0.5rem; }
+
+  .divider { border: none; border-top: 0.5px solid #2e2e38; margin: 1rem 0; }
+  .mt { margin-top: 1rem; }
+  .mt2 { margin-top: 1.5rem; }
+  .mb { margin-bottom: 1rem; }
+  .center { text-align: center; }
+  .muted { color: #9e9c94; font-size: 13px; }
+
+  #setup-counts { display: flex; gap: 10px; margin-top: 1rem; }
+  #setup-counts > div { flex: 1; }
+  #setup-counts label { font-size: 12px; color: #9e9c94; display: block; margin-bottom: 4px; }
+
+  .word-pair-display { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .word-pill { flex: 1; background: #13131a; border: 0.5px solid #2e2e38; border-radius: 10px; padding: 10px; text-align: center; font-size: 13px; color: #9e9c94; }
+  .word-pill strong { display: block; font-size: 15px; color: #e8e6df; margin-top: 2px; }
+
+  #guess-input-wrap { margin-top: 1rem; }
+
+  .result-icon { font-size: 3.5rem; display: block; text-align: center; margin-bottom: 0.75rem; }
+
+  .round-info { font-size: 12px; color: #555; margin-top: 0.25rem; }
+</style>
+</head>
+<body>
+
+<!-- SCREEN: Home -->
+<div class="screen active" id="screen-home">
+  <div style="text-align:center; margin-bottom: 2rem;">
+    <div style="font-size:3rem;">🕵️</div>
+    <h1 style="margin-top:0.5rem;">Undercover</h1>
+    <p style="margin-top:0.5rem;">Find the spy. Survive the vote.</p>
+  </div>
+  <div class="card">
+    <h2>How to play</h2>
+    <div style="margin-top:0.75rem; font-size:14px; color:#9e9c94; line-height:1.8;">
+      <div>🟢 <strong style="color:#e8e6df;">Civilians</strong> — share the same secret word</div>
+      <div>🟣 <strong style="color:#e8e6df;">Undercover</strong> — have a similar but different word</div>
+      <div>🟡 <strong style="color:#e8e6df;">Mr. White</strong> — has no word at all</div>
+      <hr class="divider">
+      <div>Each round, everyone gives a <strong style="color:#e8e6df;">one-word clue</strong> about their word, then votes to eliminate the most suspicious player. Civilians win when all Undercover & Mr. White are gone. Spies win if they survive to the final 3, or if Mr. White correctly guesses the civilian word when eliminated.</div>
+    </div>
+  </div>
+  <button class="btn btn-primary mt" onclick="goSetup()">Start game</button>
+</div>
+
+<!-- SCREEN: Setup -->
+<div class="screen" id="screen-setup">
+  <h2>Players</h2>
+  <p class="muted mb">Add 5–8 players and assign roles.</p>
+  <div id="player-inputs"></div>
+  <button class="btn btn-secondary" id="add-player-btn" onclick="addPlayerInput()">+ Add player</button>
+  <hr class="divider">
+  <div id="setup-counts">
+    <div>
+      <label>Undercover</label>
+      <input type="number" id="count-undercover" min="1" max="2" value="1">
+    </div>
+    <div>
+      <label>Mr. White</label>
+      <input type="number" id="count-mrwhite" min="0" max="1" value="1">
+    </div>
+  </div>
+  <hr class="divider">
+  <div>
+    <label style="font-size:13px; color:#9e9c94; display:block; margin-bottom:6px;">Word pair (or leave blank for random)</label>
+    <div class="word-pair-display">
+      <div class="word-pill"><span>Civilian</span><input type="text" id="word-civilian" placeholder="e.g. Apple" style="margin-top:6px; text-align:center;"></div>
+      <div class="word-pill"><span>Undercover</span><input type="text" id="word-undercover" placeholder="e.g. Pear" style="margin-top:6px; text-align:center;"></div>
+    </div>
+  </div>
+  <button class="btn btn-primary mt" onclick="startGame()">Deal roles</button>
+  <button class="btn btn-secondary mt" onclick="showScreen('screen-home')">Back</button>
+</div>
+
+<!-- SCREEN: Role Reveal Pass-and-look -->
+<div class="screen" id="screen-reveal-gate">
+  <div class="card center">
+    <div class="big-icon" id="reveal-gate-icon">👤</div>
+    <h2 id="reveal-gate-name">Player Name</h2>
+    <p class="muted">Pass the phone to this player, then tap to see your role.</p>
+    <button class="btn btn-primary mt" onclick="showRole()">See my role</button>
+  </div>
+  <div class="round-info center" id="reveal-progress"></div>
+</div>
+
+<!-- SCREEN: Role Reveal -->
+<div class="screen" id="screen-reveal">
+  <div class="card role-reveal">
+    <div id="reveal-badge"></div>
+    <div class="role-word" id="reveal-word">—</div>
+    <div class="role-label" id="reveal-role-label"></div>
+    <button class="btn btn-secondary" onclick="nextReveal()">Done, pass phone</button>
+  </div>
+</div>
+
+<!-- SCREEN: Game board -->
+<div class="screen" id="screen-game">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+    <h2 id="round-title">Round 1</h2>
+    <span class="muted" id="alive-count"></span>
+  </div>
+  <div class="card">
+    <div style="font-size:13px; color:#9e9c94; margin-bottom:10px;">Players still in</div>
+    <div id="player-status-list"></div>
+  </div>
+  <button class="btn btn-primary" onclick="goVote()">Vote to eliminate</button>
+  <button class="btn btn-secondary mt" onclick="showScreen('screen-home')" style="opacity:0.5; font-size:13px;">Quit</button>
+</div>
+
+<!-- SCREEN: Vote -->
+<div class="screen" id="screen-vote">
+  <h2>Who is most suspicious?</h2>
+  <p class="muted mb">Vote to eliminate one player.</p>
+  <div class="vote-list" id="vote-list"></div>
+</div>
+
+<!-- SCREEN: Eliminated -->
+<div class="screen" id="screen-eliminated">
+  <div class="card center">
+    <div class="big-icon" id="elim-icon">💀</div>
+    <h2 id="elim-name"></h2>
+    <div id="elim-badge" style="margin:0.5rem 0;"></div>
+    <div id="elim-word" style="font-size:1.5rem; font-weight:700; margin:0.5rem 0;"></div>
+    <p class="muted" id="elim-desc"></p>
+  </div>
+  <div id="mrwhite-guess-wrap" style="display:none;">
+    <div class="card">
+      <h2 style="margin-bottom:0.5rem;">Mr. White's last chance</h2>
+      <p class="muted">Guess the civilian word to win!</p>
+      <div id="guess-input-wrap">
+        <input type="text" id="mrwhite-guess" placeholder="Type the civilian word...">
+        <button class="btn btn-primary mt" onclick="submitMrWhiteGuess()">Submit guess</button>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-primary mt" id="elim-continue-btn" onclick="afterElimination()">Continue</button>
+</div>
+
+<!-- SCREEN: Win -->
+<div class="screen" id="screen-win">
+  <div class="card center">
+    <div class="result-icon" id="win-icon">🏆</div>
+    <h2 id="win-title"></h2>
+    <p class="muted mt" id="win-desc"></p>
+    <hr class="divider">
+    <div style="font-size:13px; color:#9e9c94; margin-bottom:0.5rem;">The words were</div>
+    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;" id="win-words"></div>
+  </div>
+  <button class="btn btn-primary mt" onclick="goSetup()">Play again</button>
+  <button class="btn btn-secondary mt" onclick="showScreen('screen-home')">Home</button>
+</div>
+
+<script>
+const WORD_PAIRS = [
+  ['Coffee','Tea'],['Beach','Pool'],['Cat','Dog'],['Pizza','Burger'],['Guitar','Violin'],
+  ['Castle','Palace'],['Shark','Dolphin'],['Doctor','Nurse'],['Passport','ID Card'],['Candle','Lamp'],
+  ['Forest','Jungle'],['Astronaut','Pilot'],['Diamond','Ruby'],['Sushi','Sashimi'],['Volcano','Mountain'],
+  ['Telephone','Radio'],['King','Queen'],['Chocolate','Vanilla'],['Train','Bus'],['Sword','Knife'],
+];
+
+let players = [];
+let roles = {};
+let words = { civilian: '', undercover: '' };
+let alive = [];
+let round = 1;
+let revealIndex = 0;
+let pendingElim = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goSetup() {
+  // Build player inputs for 6
+  const wrap = document.getElementById('player-inputs');
+  wrap.innerHTML = '';
+  players = [];
+  for (let i = 0; i < 6; i++) addPlayerInput();
+  showScreen('screen-setup');
+}
+
+function addPlayerInput() {
+  const wrap = document.getElementById('player-inputs');
+  const existing = wrap.querySelectorAll('.player-row').length;
+  if (existing >= 8) return;
+  const idx = existing;
+  const row = document.createElement('div');
+  row.className = 'player-row';
+  row.innerHTML = `<input type="text" placeholder="Player ${idx+1}" id="pname-${idx}">
+    <button class="remove-btn" onclick="this.parentElement.remove(); updateAddBtn()">✕</button>`;
+  wrap.appendChild(row);
+  updateAddBtn();
+}
+
+function updateAddBtn() {
+  const count = document.querySelectorAll('.player-row').length;
+  document.getElementById('add-player-btn').style.display = count >= 8 ? 'none' : 'block';
+}
+
+function getPlayerNames() {
+  const rows = document.querySelectorAll('.player-row');
+  const names = [];
+  rows.forEach((row, i) => {
+    const val = row.querySelector('input').value.trim() || `Player ${i+1}`;
+    names.push(val);
+  });
+  return names;
+}
+
+function startGame() {
+  players = getPlayerNames();
+  if (players.length < 3) { alert('Need at least 3 players!'); return; }
+
+  const nU = parseInt(document.getElementById('count-undercover').value) || 1;
+  const nW = parseInt(document.getElementById('count-mrwhite').value) || 0;
+  if (nU + nW >= players.length) { alert('Too many spies! Reduce Undercover or Mr. White count.'); return; }
+
+  // Words
+  const wC = document.getElementById('word-civilian').value.trim();
+  const wU = document.getElementById('word-undercover').value.trim();
+  if (wC && wU) {
+    words = { civilian: wC, undercover: wU };
+  } else {
+    const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
+    words = { civilian: pair[0], undercover: pair[1] };
+  }
+
+  // Assign roles
+  const shuffled = [...players].sort(() => Math.random() - 0.5);
+  roles = {};
+  shuffled.forEach((p, i) => {
+    if (i < nU) roles[p] = 'undercover';
+    else if (i < nU + nW) roles[p] = 'mrwhite';
+    else roles[p] = 'civilian';
+  });
+
+  alive = [...players];
+  round = 1;
+  revealIndex = 0;
+  showRevealGate();
+}
+
+function showRevealGate() {
+  if (revealIndex >= players.length) {
+    showGameBoard();
+    return;
+  }
+  const name = players[revealIndex];
+  document.getElementById('reveal-gate-name').textContent = name;
+  document.getElementById('reveal-progress').textContent = `${revealIndex + 1} of ${players.length}`;
+  showScreen('screen-reveal-gate');
+}
+
+function showRole() {
+  const name = players[revealIndex];
+  const role = roles[name];
+  const wordEl = document.getElementById('reveal-word');
+  const badgeEl = document.getElementById('reveal-badge');
+  const labelEl = document.getElementById('reveal-role-label');
+
+  if (role === 'civilian') {
+    wordEl.textContent = words.civilian;
+    wordEl.style.color = '#4ade80';
+    badgeEl.innerHTML = '<span class="badge badge-civilian">Civilian</span>';
+    labelEl.textContent = 'Your word. Describe it without giving it away!';
+  } else if (role === 'undercover') {
+    wordEl.textContent = words.undercover;
+    wordEl.style.color = '#c084fc';
+    badgeEl.innerHTML = '<span class="badge badge-undercover">Undercover</span>';
+    labelEl.textContent = 'Your word is similar but different. Blend in!';
+  } else {
+    wordEl.textContent = '???';
+    wordEl.style.color = '#facc15';
+    badgeEl.innerHTML = '<span class="badge badge-mrwhite">Mr. White</span>';
+    labelEl.textContent = 'You have no word. Listen carefully and survive!';
+  }
+  showScreen('screen-reveal');
+}
+
+function nextReveal() {
+  revealIndex++;
+  showRevealGate();
+}
+
+function showGameBoard() {
+  document.getElementById('round-title').textContent = `Round ${round}`;
+  const aliveCount = alive.length;
+  document.getElementById('alive-count').textContent = `${aliveCount} players left`;
+
+  const list = document.getElementById('player-status-list');
+  list.innerHTML = '';
+  players.forEach(p => {
+    const isAlive = alive.includes(p);
+    const div = document.createElement('div');
+    div.className = 'player-list-item';
+    div.innerHTML = `<span class="${isAlive ? '' : 'eliminated'}">${p}</span>
+      <span class="${isAlive ? 'tag-alive' : 'tag-out'}">${isAlive ? 'in' : 'out'}</span>`;
+    list.appendChild(div);
+  });
+  showScreen('screen-game');
+}
+
+function goVote() {
+  const voteList = document.getElementById('vote-list');
+  voteList.innerHTML = '';
+  alive.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'vote-btn';
+    btn.textContent = p;
+    btn.onclick = () => eliminate(p);
+    voteList.appendChild(btn);
+  });
+  showScreen('screen-vote');
+}
+
+function eliminate(name) {
+  const role = roles[name];
+  pendingElim = name;
+
+  document.getElementById('elim-name').textContent = name + ' is out!';
+  document.getElementById('mrwhite-guess-wrap').style.display = 'none';
+  document.getElementById('elim-continue-btn').style.display = 'block';
+
+  if (role === 'civilian') {
+    document.getElementById('elim-icon').textContent = '😇';
+    document.getElementById('elim-badge').innerHTML = '<span class="badge badge-civilian">Civilian</span>';
+    document.getElementById('elim-word').textContent = words.civilian;
+    document.getElementById('elim-desc').textContent = 'An innocent was eliminated!';
+  } else if (role === 'undercover') {
+    document.getElementById('elim-icon').textContent = '🕵️';
+    document.getElementById('elim-badge').innerHTML = '<span class="badge badge-undercover">Undercover</span>';
+    document.getElementById('elim-word').textContent = words.undercover;
+    document.getElementById('elim-desc').textContent = 'A spy has been caught!';
+  } else {
+    document.getElementById('elim-icon').textContent = '🃏';
+    document.getElementById('elim-badge').innerHTML = '<span class="badge badge-mrwhite">Mr. White</span>';
+    document.getElementById('elim-word').textContent = '???';
+    document.getElementById('elim-desc').textContent = 'Mr. White gets one guess at the civilian word!';
+    document.getElementById('mrwhite-guess-wrap').style.display = 'block';
+    document.getElementById('elim-continue-btn').style.display = 'none';
+    document.getElementById('mrwhite-guess').value = '';
+  }
+
+  showScreen('screen-eliminated');
+}
+
+function submitMrWhiteGuess() {
+  const guess = document.getElementById('mrwhite-guess').value.trim().toLowerCase();
+  const correct = words.civilian.toLowerCase();
+  if (!guess) return;
+  if (guess === correct) {
+    showWin('mrwhite', 'Mr. White guessed correctly!');
+  } else {
+    document.getElementById('mrwhite-guess-wrap').style.display = 'none';
+    document.getElementById('elim-continue-btn').style.display = 'block';
+    document.getElementById('elim-desc').textContent = `Wrong guess. The word was "${words.civilian}". Continue.`;
+    afterEliminationActual();
+  }
+}
+
+function afterElimination() {
+  afterEliminationActual();
+}
+
+function afterEliminationActual() {
+  alive = alive.filter(p => p !== pendingElim);
+  round++;
+  checkWinCondition();
+}
+
+function checkWinCondition() {
+  const aliveRoles = alive.map(p => roles[p]);
+  const undercoversLeft = aliveRoles.filter(r => r === 'undercover').length;
+  const mrWhiteLeft = aliveRoles.filter(r => r === 'mrwhite').length;
+  const civiliansLeft = aliveRoles.filter(r => r === 'civilian').length;
+  const spiesLeft = undercoversLeft + mrWhiteLeft;
+
+  if (spiesLeft === 0) {
+    showWin('civilians', 'All spies have been eliminated!');
+    return;
+  }
+  if (alive.length <= 3 && spiesLeft >= 1) {
+    showWin('spies', 'The spies have survived to the end!');
+    return;
+  }
+  if (civiliansLeft === 0) {
+    showWin('spies', 'All civilians have been eliminated!');
+    return;
+  }
+  showGameBoard();
+}
+
+function showWin(winner, desc) {
+  const winIcon = document.getElementById('win-icon');
+  const winTitle = document.getElementById('win-title');
+  const winDesc = document.getElementById('win-desc');
+  const winWords = document.getElementById('win-words');
+
+  if (winner === 'civilians') {
+    winIcon.textContent = '🟢';
+    winTitle.textContent = 'Civilians win!';
+  } else if (winner === 'spies') {
+    winIcon.textContent = '🟣';
+    winTitle.textContent = 'Spies win!';
+  } else if (winner === 'mrwhite') {
+    winIcon.textContent = '🟡';
+    winTitle.textContent = 'Mr. White wins!';
+  }
+
+  winDesc.textContent = desc;
+  winWords.innerHTML = `
+    <div style="background:#1a3a2a; color:#4ade80; border-radius:10px; padding:8px 16px; font-size:14px;">
+      Civilian: <strong>${words.civilian}</strong>
+    </div>
+    <div style="background:#2a1a3a; color:#c084fc; border-radius:10px; padding:8px 16px; font-size:14px;">
+      Undercover: <strong>${words.undercover}</strong>
+    </div>`;
+
+  // Show final roles
+  const roleLines = players.map(p => {
+    const r = roles[p];
+    const badge = r === 'civilian' ? '🟢' : r === 'undercover' ? '🟣' : '🟡';
+    return `<div class="player-list-item"><span>${badge} ${p}</span><span class="muted">${r}</span></div>`;
+  }).join('');
+  winWords.innerHTML += `<div style="width:100%; margin-top:1rem;">${roleLines}</div>`;
+
+  showScreen('screen-win');
+}
+
+goSetup();
+</script>
+</body>
+</html>
