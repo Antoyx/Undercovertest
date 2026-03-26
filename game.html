@@ -87,7 +87,7 @@
 <div class="screen active" id="screen-setup">
   <a href="index.html" class="back-link">← Home</a>
   <h2>Players</h2>
-  <p class="muted mb">Add 5–8 players and assign roles.</p>
+  <p class="muted mb">Add 5–9 players and assign roles.</p>
   <div id="player-inputs"></div>
   <button class="btn btn-secondary" id="add-player-btn" onclick="addPlayerInput()">+ Add player</button>
   <hr class="divider">
@@ -218,7 +218,7 @@ function resetSetup() {
 function addPlayerInput() {
   const wrap = document.getElementById('player-inputs');
   const existing = wrap.querySelectorAll('.player-row').length;
-  if (existing >= 8) return;
+  if (existing >= 9) return;
   const idx = existing;
   const row = document.createElement('div');
   row.className = 'player-row';
@@ -230,7 +230,7 @@ function addPlayerInput() {
 
 function updateAddBtn() {
   const count = document.querySelectorAll('.player-row').length;
-  document.getElementById('add-player-btn').style.display = count >= 8 ? 'none' : 'block';
+  document.getElementById('add-player-btn').style.display = count >= 9 ? 'none' : 'block';
 }
 
 function getPlayerNames() {
